@@ -8,6 +8,8 @@ It may be preferable to not follow the default behavior and to set a different t
 
 The tool may be used for both binary classification and multi-class classification, though is simpler in the binary case. With binary probablems, only a single threshold must be found. With multi-class classification, the tool seeks to identify the optimal threshold for each class. As the two cases are somewhat different, we discuss them separately next.
 
+If binary labels are what's relevant, can be productive to adjust the thresholds. The confusion matrixes can look quite different. 
+
 ## Thresholds in binary classification
 Where there are only two classes, the models may output a probability for each class for each record. Scikit-learn, for example, works this way. But, one probability is simply 1.0 minus the other, so only the probabilities of one of the classes are strictly necessary. 
 
@@ -35,11 +37,25 @@ Numerous metrics are uses for classification problems, but for simplicity, we wi
 
 In a binary classification problem, AUROC evaluates how well the model tends to give higher probability for the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities, and not the class predictions). 
 
-F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. 
+F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. Similarly for precision, recall, MCC (Mathew's Correlation Coeficient) and several other metrics. 
 
-Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. But, to create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with a high F1 score. 
+Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. These may be the most relevant, though to optimize these, we often first work to ensure the probabilities are well-ranked (the AUROC is optimized), and then calibrate the model in post-processing, though tuning the model to produce accurate probabilities is also common. 
 
-However, it's also possible to have a high AUROC and low F1 Score, or a high F1 Score and low AUROC. The former is likely due to a poor choice of threshold. The latter is likely due to a particuarly good choice of threhsold (where most thresholds would perform poorly).
+To create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with a high F1 score. 
+
+However, it's also possible to have a high AUROC and low F1 Score, or a high F1 Score and low AUROC. The former is likely due to a poor choice of threshold. This can occur, for example, where the data is imbalanced and the AUROC curve hugs the y-axis. This can create an asymetric curve, where the optimal F1 score (or other such metrics) are found using threhsolds other than 0.5. 
+
+The latter is likely due to a particuarly good choice of threhsold (where most thresholds would perform poorly).
+
+AUROC averages over all possible thresholds. In practice, only use 1. AUROC still useful metric, but can be misleading
+if use a sub-optimal threshold.  
+
+These are for metrics that check all probabilities. It may be more relevant to look at the top k predictions, to look at
+the lift etc, depending on the project.
+
+## Metrics based on labels
+All metrics derived from confusion matrix.
+If are probabilities, these are based on the threshold (so each record has a single class preiction, which may be correct or not).
 
 ## APIs
 The tool provides five APIs: 
@@ -47,7 +63,38 @@ The tool provides five APIs:
 - two to visualize the implications of using different threhsolds
 - one to optimize the threshold(s) for a specfied metric
 
+If have AUROC of, say, 0.91, may be good. But, just means random positive sample 91% change ranked higher than random
+negative sample. If are a small minority, can be clumped together, or spread more evenly. Knowing helps set threshold.
 
+methods specify target_labels to ensure handle in a sensible order. Especially important with binary classification,
+so knows which the probabilities refer to where only one set of probs are provided (can provide a pair of probs
+per row if want -- and for multiclass, need to).
+
+## Implications of setting the thresholds
+-- give examples from notebooks
+
+include some examples where AUROC is high and F1 is low. I think when this happens, the threshold can just be split 
+better. I think get this when imbalance and the model mostly predicts neg as neg, so the curve line hugs the y axis.
+
+give examples with real models on real data. can mostly use RF, but also sklearn MVP, DT, kNN.
+
+In multi-class case, if move the threshold, we need to define a default class. Often this makes sense. eg if network
+logs, default is not-an-attack, and all other classes types of attack. Or if medical, default is healthy and other 
+classes types of condition. Then, only take each class (other than default) if it's both the highest and over the 
+threshold. For now, have 1 threshold for all classes. Future versions will support separate threshold for each. 
+
+if the threshold is, say, 0.6, and the probability for class B is 0.5, then goes to default. If prob is 0.65, then 
+predict class B. So long as the default is over 0.5, it's fairly straightforwrd: if any class is over the threshold,
+then no other class can be too. But if threshold is under, say, 0.4, then can have 2 classes over threshold. In that
+case, go with the highest. Go with the default if either: it's the highest prob; none are over the threshold.
+
+when plotting with multiclass, plot prob vs actual class, but are a set of probs per target class, so that many plots.
+More effort, but get a fuller picture. 
+
+evidently also a good tool. i guess. it doesn't render for me on bns laptop
+
+It only makes sense to set a threshold with multiple classes if there is a default class. If there is no class over the
+threshold and there is no default, then have no predition (in that case, 'no prediction' becomes a defacto default). 
 
 
 
