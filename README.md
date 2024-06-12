@@ -1,4 +1,4 @@
-# SplitPointViz
+# ClassificationThesholdViz
 
 SplitPointViz is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools automates selecting a threshold and helps understand the choices related to the thresholds selected.
 
