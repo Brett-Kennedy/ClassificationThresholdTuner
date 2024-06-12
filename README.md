@@ -1,6 +1,6 @@
-# ClassificationThesholdViz
+# ClassificationTheshold
 
-SplitPointViz is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools automates selecting a threshold and helps understand the choices related to the thresholds selected.
+ClassificationTheshold is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools automates selecting a threshold and helps understand the choices related to the thresholds selected.
 
 We assume the use of classifiers that produce probabilities for each record and assume that we wish to convert these into concrete predictions, so that for each record we have a prediction of a single class. Normally we would simply predict the class that recieved the highest probability. In the binary classification case, this is equivalant to taking the class that received a predicted probability over 0.5 (though in very rare cases, both classes may recieve a probability of exactly 0.5 for some rows). 
 
