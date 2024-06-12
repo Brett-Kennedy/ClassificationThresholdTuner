@@ -70,6 +70,34 @@ methods specify target_labels to ensure handle in a sensible order. Especially i
 so knows which the probabilities refer to where only one set of probs are provided (can provide a pair of probs
 per row if want -- and for multiclass, need to).
 
+### print_stats_labels()
+This assumes the labels have been selected already. Where only the probabilities are available, this method cannot be called directly, but will be called by print_stats_proba() if that is called.
+
+Display basic metrics related to the predictions. Displays some of the most common metrics: precision, recall and F1 scores. These are shown per class, as well as their macro average. 
+
+This is method is called by print_stats_proba(), but can be called directly if the labels have been set elsewhere.
+
+### print_stats_proba()
+
+Presents 2 scores: brier score, AUROC,
+Plots: AUROC curve, histogram, and swarmplot.
+If no threshold is specified, uses 0.5. Enhances the AUROC to show the threshold. 
+
+### plot_by_threshold()
+This draws a row of plots for each potential threshold. 
+In the swarm plots, the red indicates errors. Otherwise, each class is drawn with a specific colour. 
+The confusion matrix lines up with the swarm plots, showing the same classes in the same order. 
+
+### describe_slices()
+For simplicity, assumes the same threshold for each class; this is for visualization and not the actual tuning. We can see the implications of moving the threshold from one location to another, in terms of the numbers of each class within each slice between the potential thresholds. 
+
+### tune_threshold()
+
+Once called, may wish to call print_stats_labels() again with the optimal threshold(s). 
+
+# Examples
+-- give examples from the notebooks
+
 ## Implications of setting the thresholds
 -- give examples from notebooks
 
