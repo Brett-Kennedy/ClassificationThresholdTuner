@@ -1,10 +1,10 @@
 # SplitPointViz
 
-SplitPointViz is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools helps understand the choices related to the thresholds selected.
+SplitPointViz is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools automates selecting a threshold and helps understand the choices related to the thresholds selected.
 
-We assume the use of classifiers that produce probabilities for each record and that we wish to convert these into concrete predictions, so that for each record we have a prediction of a single class. Normally we would simply predict the class that recieved the highest probability. In the binary classification case, this is equivalant to taking the class that received a predicted probability over 0.5 (though in very rare cases, both classes may recieved a probability of exactly 0.5 for some rows). However, it may be preferable to set a different threshold, in order to optimize certain metrics or to treat different classes differently. 
+We assume the use of classifiers that produce probabilities for each record and assume that we wish to convert these into concrete predictions, so that for each record we have a prediction of a single class. Normally we would simply predict the class that recieved the highest probability. In the binary classification case, this is equivalant to taking the class that received a predicted probability over 0.5 (though in very rare cases, both classes may recieve a probability of exactly 0.5 for some rows). 
 
--- not well calibrated.
+It may be preferable to not follow the default behavior and to set a different threshold, in order to optimize certain metrics or to treat different classes differently. It may be that certain types of errors are more signficant than others, and it is likely the case that the probabilities produced by the models are not well-calibrated (possibly even after specifically calibrating them in a post-processing step).
 
 The tool may be used for both binary classification and multi-class classification, though is simpler in the binary case. With binary probablems, only a single threshold must be found. With multi-class classification, the tool seeks to identify the optimal threshold for each class. As the two cases are somewhat different, we discuss them separately next.
 
@@ -29,5 +29,26 @@ If the predicted probabilites were: 0.1, 0.3, 0.6, 0.0, then we would predict "P
 If two or more classes have predicted probabilities over their threshold, we take the higher. If none do, we take the default class.
 
 If the default class has the highest predicted probability, it will be predicted. 
+
+## AUROC and F1 Scores
+Numerous metrics are uses for classification problems, but for simplicity, we will consider for the moment just two of the more common, the Area Under a Receiver Operator Curver (AUROC) and the F1 score (specifially, the macro score). These are often both useful, though measure two different things. AUROC measures how well-ordered the predictions are. It applies only to binary prediction, but in a multi-class probablem, we can calculate the AUROC score for each class by treating the problem as a one-vs-all problem. For example, we can calculate the AUROC for each of "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For the AUROC for "Normal Behavior", we treat the problem as predicted "Normal Behavior" vs not "Normal Behavior", and so on.
+
+In a binary classification problem, AUROC evaluates how well the model tends to give higher probability for the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities, and not the class predictions). 
+
+F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. 
+
+Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. But, to create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with a high F1 score. 
+
+However, it's also possible to have a high AUROC and low F1 Score, or a high F1 Score and low AUROC. The former is likely due to a poor choice of threshold. The latter is likely due to a particuarly good choice of threhsold (where most thresholds would perform poorly).
+
+## APIs
+The tool provides five APIs: 
+- two to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions).
+- two to visualize the implications of using different threhsolds
+- one to optimize the threshold(s) for a specfied metric
+
+
+
+
 
 
