@@ -59,9 +59,9 @@ If are probabilities, these are based on the threshold (so each record has a sin
 
 ## APIs
 The tool provides five APIs: 
-- two to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions).
-- two to visualize the implications of using different threhsolds
-- one to optimize the threshold(s) for a specfied metric
+- two APIs (print_stats_labels() and print_stats_proba()) to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions). 
+- two APIs (plot_by_threshold() and describe_slices()) to visualize the implications of using different threhsolds
+- one API (tune_threshold()) to optimize the threshold(s) for a specfied metric
 
 If have AUROC of, say, 0.91, may be good. But, just means random positive sample 91% change ranked higher than random
 negative sample. If are a small minority, can be clumped together, or spread more evenly. Knowing helps set threshold.
