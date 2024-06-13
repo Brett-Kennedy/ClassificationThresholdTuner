@@ -92,6 +92,8 @@ The confusion matrix lines up with the swarm plots, showing the same classes in 
 For simplicity, assumes the same threshold for each class; this is for visualization and not the actual tuning. We can see the implications of moving the threshold from one location to another, in terms of the numbers of each class within each slice between the potential thresholds. 
 
 ### tune_threshold()
+The main method. No output other than the threshold(s) found. In the case of binary classification, this returns a single threshold. In the case of multi-class classification, this returns a threshold per class. 
+
 
 Once called, may wish to call print_stats_labels() again with the optimal threshold(s). 
 
