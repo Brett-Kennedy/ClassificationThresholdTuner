@@ -94,6 +94,8 @@ For simplicity, assumes the same threshold for each class; this is for visualiza
 ### tune_threshold()
 The main method. No output other than the threshold(s) found. In the case of binary classification, this returns a single threshold. In the case of multi-class classification, this returns a threshold per class. 
 
+Can only take metrics based on labels, not probabilities. The goal of the tool is to find thresholds that maximize such metrics. 
+
 
 Once called, may wish to call print_stats_labels() again with the optimal threshold(s). 
 
