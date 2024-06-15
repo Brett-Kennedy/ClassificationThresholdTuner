@@ -67,7 +67,7 @@ If are probabilities, these are based on the threshold (so each record has a sin
 
 ## APIs
 The tool provides five APIs: 
-- two APIs (print_stats_labels() and print_stats_proba()) to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions). 
+- three APIs (print_stats_labels(),  print_stats_table(), and print_stats_proba()) to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions). 
 - two APIs (plot_by_threshold() and describe_slices()) to visualize the implications of using different threhsolds
 - one API (tune_threshold()) to optimize the threshold(s) for a specfied metric
 
@@ -84,6 +84,10 @@ This assumes the labels have been selected already. Where only the probabilities
 Display basic metrics related to the predictions. Displays some of the most common metrics: precision, recall and F1 scores. These are shown per class, as well as their macro average. 
 
 This is method is called by print_stats_proba(), but can be called directly if the labels have been set elsewhere.
+
+### print_stats_table()
+Gives a number of columns to step you through the operation. Can point towards thresholds. 
+currently only available for binary classification. 
 
 ### print_stats_proba()
 
