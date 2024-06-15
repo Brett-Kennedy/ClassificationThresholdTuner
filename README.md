@@ -88,6 +88,8 @@ This is method is called by print_stats_proba(), but can be called directly if t
 ### print_stats_table()
 Gives a number of columns to step you through the operation. Can point towards thresholds. 
 currently only available for binary classification. 
+gives stats of each range, and also the cumulative. If set a threshold, it's the cumulative that's relevant. 
+1st two columns relate to the ranks of the probabilities. Due to ties, some ranges may have no records. 
 
 ### print_stats_proba()
 
