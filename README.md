@@ -10,6 +10,10 @@ The tool may be used for both binary classification and multi-class classificati
 
 If binary labels are what's relevant, can be productive to adjust the thresholds. The confusion matrixes can look quite different. 
 
+-- idea isn't just to tune the threshold(s) but to be able to understand them too. Though, can simply tune as well, where the details are not relevant. 
+
+all metrics can be misleading. they are single numbers (or a small set of numbers). Can view otherwise. Confusion matrix can explain fairly well, but it does hide a lot -- it's based on a certain threshold (or mulitple if multiple classes), so does not show how would look with other choices for the threshold. When selecting a model, it's necessary to use a single metric (though it can be a complex combination of multiple metrics -- it still needs to be a single number). But when assessing the model, can use multiple metrics. Gives a fuller picture. Good to break down by segment, for example. 
+
 ## Thresholds in binary classification
 Where there are only two classes, the models may output a probability for each class for each record. Scikit-learn, for example, works this way. But, one probability is simply 1.0 minus the other, so only the probabilities of one of the classes are strictly necessary. 
 
@@ -52,6 +56,10 @@ if use a sub-optimal threshold.
 
 These are for metrics that check all probabilities. It may be more relevant to look at the top k predictions, to look at
 the lift etc, depending on the project.
+
+AUROC is more straightforward when it has a standard, symetric shape, but this is not always the case. 
+
+AUPRC curve also a common metric and also useful. 
 
 ## Metrics based on labels
 All metrics derived from confusion matrix.
