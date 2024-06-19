@@ -1,65 +1,62 @@
 # ClassificationThesholdTuner
 
-ClassificationThesholdTuner is a tool to visualize and to help set the thresholds used for clasificiation problems. Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tools automates selecting a threshold and helps understand the choices related to the thresholds selected.
+ClassificationThesholdTuner is a tool to set the thresholds used for clasificiation problems and to visualize the implications of different thresholds. 
 
-We assume the use of classifiers that produce probabilities for each record and assume that we wish to convert these into label predictions, so that for each record we have a prediction of a single class. Normally we would simply predict the class that recieved the highest probability. In the binary classification case, this is equivalant to taking the class that received a predicted probability over 0.5 (though in very rare cases, both classes may recieve a probability of exactly 0.5 for some rows). In multi-class classification, there isn't a specific known point, and is simply the class with the highest estimated probability. 
+Where models produce probabilities for each class, depending on distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tool automates selecting a threshold and helps understand the choices related to the thresholds selected.
 
-It may be preferable to not follow the default behavior and to set a different threshold, in order to optimize certain metrics or to treat different classes differently. It may be that certain types of errors are more signficant than others, and it is likely the case that the probabilities produced by the models are not well-calibrated (possibly even after specifically calibrating them in a post-processing step).
+It supports both binary and multi-class classification. In the binary classification case, it identifies a single threshold. For multi-class classification, it identifies a threshold for each class (other than the default class, described below).
 
-The tool may be used for both binary classification and multi-class classification, though is simpler in the binary case. With binary probablems, only a single threshold must be found. With multi-class classification, the tool seeks to identify the optimal threshold for each class. As the two cases are somewhat different, we discuss them separately next.
+Searching for an optimal threshold with binary classification problems is relatively straightforward, though this does simplify the process. The use of visualizations also provides context. Optimizing the thresholds for multi-class classification is more complex. 
 
-If binary labels are what's relevant, can be productive to adjust the thresholds. The confusion matrixes can look quite different. 
+## Background
+This assumes the use of classifiers that produce probabilities for each record and that we wish to convert these into label predictions, so that for each record we have a prediction of a single class. Normally we would simply predict the class that recieved the highest probability. In the binary classification case, this is equivalant to taking the class that received a predicted probability over 0.5 (though in very rare cases, both classes may recieve a probability of exactly 0.5 for some rows). In multi-class classification, there isn't a specific known split point, and the predicted class is simply the class with the highest estimated probability. 
 
--- idea isn't just to tune the threshold(s) but to be able to understand them too. Though, can simply tune as well, where the details are not relevant. 
+In order to optimize certain metrics or to treat different classes differently, it may be preferable to not follow the default behavior and to set a different threshold. It may be that certain types of errors are more signficant than others, and it is likely the case that the probabilities produced by the models are not well-calibrated (possibly even after specifically calibrating them in a post-processing step).
 
-all metrics can be misleading. they are single numbers (or a small set of numbers). Can view otherwise. Confusion matrix can explain fairly well, but it does hide a lot -- it's based on a certain threshold (or mulitple if multiple classes), so does not show how would look with other choices for the threshold. When selecting a model, it's necessary to use a single metric (though it can be a complex combination of multiple metrics -- it still needs to be a single number). But when assessing the model, can use multiple metrics. Gives a fuller picture. Good to break down by segment, for example. 
+In cases where it's useful to predict a single class for each record, the relevant metrics will be based on the true and predicted labels, for example F1 Score, Matthews correlation coefficient, Kappa Score, and so on. These are all, in one way or another, derived from a confusion matrix. The confusion matrix, in turn, can look quite different depending on the thresholds used. 
 
-## Thresholds in binary classification
+All metrics can be misleading. They are single numbers (or a small set of numbers), and it's difficult to describe the quality of a model properly in a single number. When selecting a model (during tuning processes such as hyper-parameter tuning), it's necessary to use a single metric to select the best-performing model. But, when assessing a model and trying to get a sense of it's reliability, it's good to examine the output in multiple ways, including breaking it down by segment. A confusion matrix describes the output well for a given threshold (or set of thresholds), but does not describe the model well given that a range of thresholds may potentially be used. 
+
+The idea of this tool is to provide a fuller picture of the model's quality by examining a range potential thresholds, as well as selecting an optimal threshold (in terms of a specified metric).
+
+## Thresholds in Binary Classification
 Where there are only two classes, the models may output a probability for each class for each record. Scikit-learn, for example, works this way. But, one probability is simply 1.0 minus the other, so only the probabilities of one of the classes are strictly necessary. 
 
 Normally, we would use 0.5 as the threshold, so the positive class would be predicted if it has a probability of 0.5 or higher, and the negative class otherwise. But, we can use other thresholds to adjust the behavior, allowing the model to be more, or less, eager to predict the positive class. For example, if a threshold of 0.3 is used, the positive class will be predicted if the model predicted the positive class with a probability of 0.3 or higher. So, compared to using 0.5 as the threshold, more predictions of the positive class will be made, increasing both false positives and true positives. 
 
-## Thresholds in multi-class classification
+## Thresholds in Multi-class Classification
 Where we have multiple classes in the target column, if we wish to to set a threshold, it's necessary to also specify one of the classes as the default class. In many cases, this can be fairly natural. For example, if the target column represents medical conditions, the default class may be "No Issues" and the other classes may each relate to specific conditions. Or, if the data represents network logs and the target column relates to intrusion types, then the default may be "Normal Behavior" with the other classes each relating to specific network attacks.
 
-For example, we may have a dataset with four network attacks, with the target column containing the classes: "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For any record for which we run prediction, we will get a probability of each class, which will sum to 1.0. We may get, for example: 0.3, 0.4, 0.1, 0.2 (we assume here this orders the four classes as above). Normally, we would predict "Buffer Overflow" as this has the highest probability, 0.4. However, we can set a threshold in order to modify this behavior, which can affect the rate of false negatives and false positives. 
+In the case of network attacks, we may have a dataset with four distinct target values, with the target column containing the classes: "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For any record for which we run prediction, we will get a probability of each class, which will sum to 1.0. We may get, for example: 0.3, 0.4, 0.1, 0.2 (we assume here this orders the four classes as above). Normally, we would predict "Buffer Overflow" as this has the highest probability, 0.4. However, we can set a threshold in order to modify this behavior, which can affect the rate of false negatives and false positives for this class. 
 
-We may specify, for example: the default class is 'Normal Behavior", the threshold for "Buffer Overflow" is 0.5, for "Port Scan" is 0.55 and for "Phishing" is 0.45. 
+We may specify, for example: the default class is 'Normal Behavior", the threshold for "Buffer Overflow" is 0.5, for "Port Scan" is 0.55 and for "Phishing" is 0.45. By convention, the threshold for the default class is set to 0.0, as it doesn't use a threshold. So, the set of threhsolds here would be: 0.0, 0.5, 0.55, 0.45.
 
-Then to make a prediction for any given record, we consider only the classes where the probability is over the specified threshold. In this example, none of the probabilites are over the thresholds, so the default class, "Normal Behavior" is predicted.
+Then to make a prediction for any given record, we consider only the classes where the probability is over the relevant threshold. In this example, none of the probabilites are over their thresholds, so the default class, "Normal Behavior" is predicted.
 
-If the predicted probabilities were: 0.1, 0.6, 0.2, 0.1, then we would predict "Buffer Overflow": the probability (0.6) is over the threshold (0.5) and this is the highest prediction.
+If the predicted probabilities were: 0.1, 0.6, 0.2, 0.1, then we would predict "Buffer Overflow": the probability (0.6) is over its threshold (0.5) and this is the highest prediction.
 
-If the predicted probabilites were: 0.1, 0.3, 0.6, 0.0, then we would predict "Port Scan". 
+If the predicted probabilites were: 0.1, 0.2, 0.7, 0.0, then we would predict "Port Scan": the probability (0.7) is over its threshold (0.55) and this is the highest prediction. 
 
 If two or more classes have predicted probabilities over their threshold, we take the higher. If none do, we take the default class.
 
 If the default class has the highest predicted probability, it will be predicted. 
 
 ## AUROC and F1 Scores
-Numerous metrics are uses for classification problems, but for simplicity, we will consider for the moment just two of the more common, the Area Under a Receiver Operator Curver (AUROC) and the F1 score (specifially, the macro score). These are often both useful, though measure two different things. AUROC measures how well-ordered the predictions are. It applies only to binary prediction, but in a multi-class probablem, we can calculate the AUROC score for each class by treating the problem as a one-vs-all problem. For example, we can calculate the AUROC for each of "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For the AUROC for "Normal Behavior", we treat the problem as predicted "Normal Behavior" vs not "Normal Behavior", and so on.
+Numerous metrics are used for classification problems, but for simplicity, we will consider for the moment just two of the more common, the Area Under a Receiver Operator Curver (AUROC) and the F1 score (specifially, the macro score). These are often both useful, though measure two different things. AUROC measures how well-ordered the predictions are. It applies only to binary prediction, but in a multi-class probablem, we can calculate the AUROC score for each class by treating the problem as a one-vs-all problem. For example, we can calculate the AUROC for each of "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For the AUROC for "Normal Behavior", we treat the problem as predicted "Normal Behavior" vs not "Normal Behavior", and so on.
 
-In a binary classification problem, AUROC evaluates how well the model tends to give higher probability for the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities, and not the class predictions). 
+In a binary classification problem, AUROC evaluates how well the model tends to give higher probability predictions for the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities). 
 
-F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. Similarly for precision, recall, MCC (Mathew's Correlation Coeficient) and several other metrics. 
+The F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. Similarly for precision, recall, MCC (Mathew's Correlation Coeficient) and other metrics based on the predicted labels. 
 
-Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. These may be the most relevant, though to optimize these, we often first work to ensure the probabilities are well-ranked (the AUROC is optimized), and then calibrate the model in post-processing, though tuning the model to produce accurate probabilities is also common. 
+Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. These may be the most relevant, though to optimize these, we often first work to ensure the probabilities are well-ranked (the AUROC is optimized), and then calibrate the model in post-processing. Tuning the model to produce accurate probabilities is also common. 
 
-To create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with a high F1 score. 
+To create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with, for example, a high F1 score. 
 
 However, it's also possible to have a high AUROC and low F1 Score, or a high F1 Score and low AUROC. The former is likely due to a poor choice of threshold. This can occur, for example, where the data is imbalanced and the AUROC curve hugs the y-axis. This can create an asymetric curve, where the optimal F1 score (or other such metrics) are found using threhsolds other than 0.5. 
 
-The latter is likely due to a particuarly good choice of threhsold (where most thresholds would perform poorly).
+The latter case (low AUROC score but high F1 Score) is likely due to a particuarly good choice of threshold (where most thresholds would perform poorly).
 
-AUROC averages over all possible thresholds. In practice, only use 1. AUROC still useful metric, but can be misleading
-if use a sub-optimal threshold.  
-
-These are for metrics that check all probabilities. It may be more relevant to look at the top k predictions, to look at
-the lift etc, depending on the project.
-
-AUROC is more straightforward when it has a standard, symetric shape, but this is not always the case. 
-
-AUPRC curve also a common metric and also useful. 
+The AUROC is more straightforward when it has a standard, symetric shape, but this is not always the case. The AUROC averages over all possible thresholds. In practice, though, at least where we wish to produce labels as our predictions, we use only one threshold. The AUROC still useful metric, but it can be misleading if we use a sub-optimal threshold.  
 
 ## Metrics based on labels
 All metrics derived from confusion matrix.
