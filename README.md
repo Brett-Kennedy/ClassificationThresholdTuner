@@ -123,7 +123,12 @@ Once called, may wish to call print_stats_labels() again with the optimal thresh
 -- give examples from the notebooks
 
 ## Implications of setting the thresholds
--- give examples from notebooks
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/threshold_07.png)
+
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/threshold_03.png)
+
 
 include some examples where AUROC is high and F1 is low. I think when this happens, the threshold can just be split 
 better. I think get this when imbalance and the model mostly predicts neg as neg, so the curve line hugs the y axis.
