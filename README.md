@@ -83,7 +83,7 @@ The tool provides six APIs:
 - One API (tune_threshold()) to optimize the threshold(s) for a specfied metric
 - One API (get_predictions()) to get label predictions given a set of predictions and thresholds
 
-### print_stats_labels()
+## print_stats_labels()
 
 This assumes the labels have been selected already. Where only the probabilities are available, this method cannot be called directly, but will be called by print_stats_proba() if that is called.
 
@@ -118,7 +118,7 @@ Most methods have a parameter to specify the set of target labels. This is to sp
 Example output (taken from one of the sample notebooks):
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_1.png)
 
-### print_stats_table()
+## print_stats_table()
 Presents a dataframe with a number of columns to step you through the operation. This can help point towards appropriate thresholds. 
 
 Currently, this is only available for binary classification. 
@@ -165,7 +165,7 @@ return: None
 Example output:
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_3.png)
 
-### print_stats_proba()
+## print_stats_proba()
 This presents basic statistics about the probabilities produced by a model. It presents 2 scores: brier score, AUROC,
 
 It provides as plots: AUROC curve, histogram, and swarmplot. It enhances the AUROC plots to show the threshold. 
@@ -188,7 +188,7 @@ This presents 2 scores related to the predicted probabilities: brier score, AURO
 It also plots: AUROC curve, histogram, and swarm plot.
 
 y_true: array
-  True labels for each record
+    True labels for each record
 target_classes: A list of the unique values. Must include all values in y_true, though may include
     additional values not in y_true. In the case of binary classification where y_pred_proba contains only
     a series of values, we assume target_values contains first the negative class and second the positive class,
@@ -211,27 +211,66 @@ Example output with multi-class classification:
 
 
 
-### plot_by_threshold()
+## plot_by_threshold()
 This draws a row of plots for each potential threshold. 
 In the swarm plots, the red indicates errors. Otherwise, each class is drawn with a specific colour. 
 The confusion matrix lines up with the swarm plots, showing the same classes in the same order. 
 
+Example:
+```python
+```
+
+Docstring:
+```
+```
+
+Example output:
+
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_4.png)
 
-### describe_slices()
+## describe_slices()
 For simplicity, assumes the same threshold for each class; this is for visualization and not the actual tuning. We can see the implications of moving the threshold from one location to another, in terms of the numbers of each class within each slice between the potential thresholds. 
+
+Example:
+```python
+```
+
+Docstring:
+```
+```
+
+Example output:
 
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_5.png)
 
-### tune_threshold()
+## tune_threshold()
 The main method. No output other than the threshold(s) found. In the case of binary classification, this returns a single threshold. In the case of multi-class classification, this returns a threshold per class. 
 
 Can only take metrics based on labels, not probabilities. The goal of the tool is to find thresholds that maximize such metrics. 
 
-
 Once called, may wish to call print_stats_labels() again with the optimal threshold(s). 
 
-# Example Notebooks
+Example:
+```python
+```
+
+Docstring:
+```
+```
+
+
+## get_predictions
+
+Example:
+```python
+```
+
+Docstring:
+```
+```
+
+
+## Example Notebooks
 Three example notebooks are provided. Two, for simplicity, use synthetic data:
 
 [Binary Classification Example](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/notebooks/binary_classification_threshold_demo.ipynb)
