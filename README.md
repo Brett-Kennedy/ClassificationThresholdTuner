@@ -42,13 +42,11 @@ If two or more classes have predicted probabilities over their threshold, we tak
 If the default class has the highest predicted probability, it will be predicted. 
 
 ## AUROC and F1 Scores
-Numerous metrics are used for classification problems, but for simplicity, we will consider for the moment just two of the more common, the Area Under a Receiver Operator Curver (AUROC) and the F1 score (specifially, the macro score). These are often both useful, though measure two different things. AUROC measures how well-ordered the predictions are. It applies only to binary prediction, but in a multi-class probablem, we can calculate the AUROC score for each class by treating the problem as a one-vs-all problem. For example, we can calculate the AUROC for each of "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For the AUROC for "Normal Behavior", we treat the problem as predicted "Normal Behavior" vs not "Normal Behavior", and so on.
+Numerous metrics are used for classification problems, but for simplicity, we will consider for the moment just two of the more common, the Area Under a Receiver Operator Curver (AUROC) and the F1 score (specifially, the macro score). These are often both useful, though measure two different things. AUROC measures how well-ordered the predictions are. It uses prediction scores and applies only to binary prediction. Nevertheless, in a multi-class probablem, we can calculate the AUROC score for each class by treating the problem as a one-vs-all problem. For example, we can calculate the AUROC for each of "Normal Behavior", "Buffer Overflow", "Port Scan", and "Phishing". For the AUROC for "Normal Behavior", we treat the problem as predicted "Normal Behavior" vs not "Normal Behavior", and so on.
 
-In a binary classification problem, AUROC evaluates how well the model tends to give higher probability predictions for the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities). 
+In a binary classification problem, the AUROC evaluates how well the model tends to give higher probability predictions of the positive class to records of the positive class. That is, it looks at the rank order of the probabilities (not the actual probabilities). Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. These may be the most relevant metrics in some projects, though to optimize these, we often first work to ensure the probabilities are well-ranked (the AUROC is optimized), and then calibrate the model in post-processing. Alternatively, tuning the model to produce accurate probabilities in the first place is also common. 
 
-The F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. Similarly for precision, recall, MCC (Mathew's Correlation Coeficient) and other metrics based on the predicted labels. 
-
-Other metrics, such as Brier Score and Log-Loss look at the probabilities themselves. These may be the most relevant, though to optimize these, we often first work to ensure the probabilities are well-ranked (the AUROC is optimized), and then calibrate the model in post-processing. Tuning the model to produce accurate probabilities is also common. 
+The F1 Score, on the other hand, looks at the class predictions, not considering the probabilities behind them. Similarly for precision, recall, MCC (Mathew's Correlation Coeficient), and other metrics based on the predicted labels. Often models produce a score for each class and translate these scores to class predictions. 
 
 To create class predictions from probabilities, it's necessary only that the rank order of the probabilites is good. If the AUROC is high, it will be possible to create a set of class predictions with, for example, a high F1 score. 
 
@@ -58,9 +56,19 @@ The latter case (low AUROC score but high F1 Score) is likely due to a particuar
 
 The AUROC is more straightforward when it has a standard, symetric shape, but this is not always the case. The AUROC averages over all possible thresholds. In practice, though, at least where we wish to produce labels as our predictions, we use only one threshold. The AUROC still useful metric, but it can be misleading if we use a sub-optimal threshold.  
 
-## Metrics based on labels
-All metrics derived from confusion matrix.
-If are probabilities, these are based on the threshold (so each record has a single class preiction, which may be correct or not).
+## Adjusting the Threshold
+
+Given an AUROC curve, as we go left and down, we are using a higher threshold. Less records will be predicted postive, so there will be both less true positives and less false positives. 
+
+As we move right and up, we are using a lower threshold. More records will be predicted postive, so there will be both more true positives and more false positives. 
+
+Red, in this plot, is a higher threshold than green. 
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/img1.png)
+
+The following presents a set of thresholds of a given AUROC curve. We can see where adjusting from one threhsold to another can affect the true postive and false postive rates to significantly different extents.
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/img2.png)
 
 ## APIs
 The tool provides six APIs: 
