@@ -66,10 +66,11 @@ All metrics derived from confusion matrix.
 If are probabilities, these are based on the threshold (so each record has a single class preiction, which may be correct or not).
 
 ## APIs
-The tool provides five APIs: 
+The tool provides six APIs: 
 - three APIs (print_stats_labels(),  print_stats_table(), and print_stats_proba()) to assess the quality of the predictions given a set of ground truth values and predictions (either probabilities or class predictions). 
 - two APIs (plot_by_threshold() and describe_slices()) to visualize the implications of using different threhsolds
 - one API (tune_threshold()) to optimize the threshold(s) for a specfied metric
+- one API (get_predictions()) to get label predictions given a set of predictions and thresholds
 
 If have AUROC of, say, 0.91, may be good. But, just means random positive sample 91% change ranked higher than random
 negative sample. If are a small minority, can be clumped together, or spread more evenly. Knowing helps set threshold.
