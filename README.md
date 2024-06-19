@@ -91,11 +91,15 @@ Display basic metrics related to the predictions. Displays some of the most comm
 
 This is method is called by print_stats_proba(), but can be called directly if the labels have been set elsewhere.
 
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_1.png)
+
 ### print_stats_table()
 Gives a number of columns to step you through the operation. Can point towards thresholds. 
 currently only available for binary classification. 
 gives stats of each range, and also the cumulative. If set a threshold, it's the cumulative that's relevant. 
 1st two columns relate to the ranks of the probabilities. Due to ties, some ranges may have no records. 
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_3.png)
 
 ### print_stats_proba()
 
@@ -103,13 +107,21 @@ Presents 2 scores: brier score, AUROC,
 Plots: AUROC curve, histogram, and swarmplot.
 If no threshold is specified, uses 0.5. Enhances the AUROC to show the threshold. 
 
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_2.png)
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/multi_1.png)
+
 ### plot_by_threshold()
 This draws a row of plots for each potential threshold. 
 In the swarm plots, the red indicates errors. Otherwise, each class is drawn with a specific colour. 
 The confusion matrix lines up with the swarm plots, showing the same classes in the same order. 
 
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_4.png)
+
 ### describe_slices()
 For simplicity, assumes the same threshold for each class; this is for visualization and not the actual tuning. We can see the implications of moving the threshold from one location to another, in terms of the numbers of each class within each slice between the potential thresholds. 
+
+![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_5.png)
 
 ### tune_threshold()
 The main method. No output other than the threshold(s) found. In the case of binary classification, this returns a single threshold. In the case of multi-class classification, this returns a threshold per class. 
@@ -119,8 +131,19 @@ Can only take metrics based on labels, not probabilities. The goal of the tool i
 
 Once called, may wish to call print_stats_labels() again with the optimal threshold(s). 
 
-# Examples
--- give examples from the notebooks
+# Example Notebooks
+Three example notebooks are provided. Two, for simplicity, use synthetic data:
+
+[Binary Classification Example](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/notebooks/binary_classification_threshold_demo.ipynb)
+
+and
+
+[Multi-class Classification Example](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/notebooks/multiclass_classification_threshold_demo.ipynb)
+
+As well, one is provided using a number of real datasets:
+
+[Real Data Sets](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/notebooks/Real_Datasets.ipynb)
+
 
 ## Implications of setting the thresholds
 
