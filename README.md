@@ -218,10 +218,32 @@ The confusion matrix lines up with the swarm plots, showing the same classes in 
 
 Example:
 ```python
+tuner.plot_by_threshold(
+    y_true=d['Y'], 
+    target_classes=target_classes,
+    y_pred_proba=d["Pred_Proba"])
 ```
 
 Docstring:
 ```
+Plot the effects of each of a range of threshold values. For multi-class classification, this uses the
+same threshold for all classes -- it's simply to help understand the thresholds and not to tune them.
+
+For each potential threshold, we draw a series of plots.
+
+y_true: array. 
+    True labels for each record
+y_pred_proba: array. 
+    Predicted labels for each record
+target_classes: array. 
+    Set of labels. Specified to ensure the output is presented in a sensible order.
+start: float
+    The first threshold considered
+end: float
+    The last threshold considered
+num_steps: int 
+    The number of thresholds
+return: None
 ```
 
 Example output:
@@ -233,10 +255,31 @@ For simplicity, assumes the same threshold for each class; this is for visualiza
 
 Example:
 ```python
+tuner.describe_slices(    
+    y_true=d['Y'], 
+    target_classes=target_classes,
+    y_pred_proba=d["Pred_Proba"], 
+    start=0.3, end=0.7, num_slices=5)
 ```
 
 Docstring:
 ```
+Give the count & fraction of each class within each slice. Currently, this feature is available only for
+binary classification.
+
+y_true: array.
+    True labels for each record
+:param target_classes: array.
+    Set of labels. Specified to ensure the output is presented in a sensible order.
+:param y_pred_proba: array.
+    Predicted probability(ies) for each record
+:param start: float
+    Start of first slice considered
+:param end: float
+    End of last slice considered
+:param num_slices: int
+    Number of slices shown
+:return: None
 ```
 
 Example output:
@@ -252,10 +295,43 @@ Once called, may wish to call print_stats_labels() again with the optimal thresh
 
 Example:
 ```python
+from sklearn.metrics import f1_score
+
+best_threshold = tuner.tune_threshold(
+    y_true=d['Y'], 
+    target_classes=target_classes,
+    y_pred_proba=d["Pred_Proba"],
+    metric=f1_score,
+    average='macro',
+    higher_is_better=True,
+    max_iterations=5
+)
+print(best_threshold)
 ```
 
 Docstring:
 ```
+Find the ideal threshold(s) to optimize the specified metric.
+
+y_true: array of str
+    Ground truth labels for each record
+target_classes: array of str
+    List of unique values in the target column. Specifying this ensures they are displayed in a sensible order.
+y_pred_proba: array of floats representing probabilities
+    For multiclass classification, this is a 2d array. For binary classification, this may be 1d or 2d.
+metric: function
+    Must be a function that expects y_true and y_pred (as labels).
+higher_is_better: bool
+    For most most metrics (eg F1 score, MCC, precision), higher scores are better.
+default_class: str
+    Must be set for multiclass classification. Not used for binary classification.
+max_iterations: The number of iterations affects the time required to determine the best threshold(s) and
+    the precision of the threshold(s) returned.
+kwargs: Any arguments related to the metric. For example, for f1_score, the average method may be
+    specified.
+
+return: For binary classification, returns a single threshold. For multi-class classification, returns a
+    threshold for each class, with 0.0 set for the default class.
 ```
 
 
@@ -263,10 +339,38 @@ Docstring:
 
 Example:
 ```python
+tuned_pred = tuner.get_predictions(
+    target_classes=target_classes,
+    d["Pred_Proba"], None, best_threshold)
 ```
 
 Docstring:
 ```
+Get the class predictions given a set of probabilities. 
+
+target_classes: array of str
+    Names of the target classes in the order of the probabilities in y_pred_proba
+y_pred_proba: array of float 
+    Predicted probabilities. For binary classification, may be a 1d or 2d array. For multiclass classification,
+    must be a 2d array.            
+default_class: str
+    One element of target_classes
+thresholds: float or array of float
+    For binary classification, should be a float. For multiclass classification, must be an array of floats.
+
+return: array of class labels
+```
+
+## Installation
+
+This project uses a [single .py file](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/threshold_tuner.py).
+
+This must be copied into your project and imported. For example:
+
+```python
+from threshold_tuner import ClassificationThesholdTuner
+
+tuner = ClassificationThesholdTuner()
 ```
 
 
@@ -286,34 +390,31 @@ As well, one is provided using a number of real datasets:
 
 ## Implications of setting the thresholds
 
+There are some subtle points about setting thresholds in multiclass settings, which may or may not be relevant for any given project. 
+
+A threshold can be over 0.5 or under. In this example, there are three classes: the default, B, and C, and the thresholds for both B and C are set to 0.7. This means any time a prediction for B is over its default, the prediction for B must be the highest. In the middle pane below we see a vertical line drawn at 0.7. Anything to the right will be predicted as B, though there are examples of the true class being each of the three classes. 
+
+Similarly for the right pane: where the predicted probability of C is over its default of 0.7, this must be the highest predicted class, so anything to the right of the vertical line will be predicted as C. 
+
+The default class works differently. Any prediction of 1.0 minus 0.7 (that is, 0.3) for the default class will result in a prediction of the default class. In this case, no other class can be over it's threshold. 
+
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/threshold_07.png)
 
+The situation is more complicated, but similar where each class has a different threhsold. 
+
+Where the threshold for each class is under 0.5, the situation may be different, as shown in the following plot. Here the thresholds for both B and C are set to 0.4. 
+
+If there is a prediction for B under 0.4, it can't predict B. If there is a prediction between 0.4 and 0.5 for B, it may predict B. If there is a prediction over 0.5, it will predict B. So, in the middle pane, anything to the left of the first vertical line predicts Default or C, but not B. Anything between the two lines may predict any of the three classes. Anything to the right of the second vertical line will predict B. 
+
+Similarly with respect to predictions for C, as shown in the third pane.
+
+For the default, at 0.4, no other class can be above their threshold, so any predictions with a probability of 0.4 or higher for the default class will result in predictions of the default class. 
+
+If the predicted probability for the default class is under 0.2, then even if the other two classes are tied, both are greater than or equal to their thresholds, so the higher of these (and not the default) will be predicted. 
 
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/threshold_03.png)
 
 
-include some examples where AUROC is high and F1 is low. I think when this happens, the threshold can just be split 
-better. I think get this when imbalance and the model mostly predicts neg as neg, so the curve line hugs the y axis.
-
-give examples with real models on real data. can mostly use RF, but also sklearn MVP, DT, kNN.
-
-In multi-class case, if move the threshold, we need to define a default class. Often this makes sense. eg if network
-logs, default is not-an-attack, and all other classes types of attack. Or if medical, default is healthy and other 
-classes types of condition. Then, only take each class (other than default) if it's both the highest and over the 
-threshold. For now, have 1 threshold for all classes. Future versions will support separate threshold for each. 
-
-if the threshold is, say, 0.6, and the probability for class B is 0.5, then goes to default. If prob is 0.65, then 
-predict class B. So long as the default is over 0.5, it's fairly straightforwrd: if any class is over the threshold,
-then no other class can be too. But if threshold is under, say, 0.4, then can have 2 classes over threshold. In that
-case, go with the highest. Go with the default if either: it's the highest prob; none are over the threshold.
-
-when plotting with multiclass, plot prob vs actual class, but are a set of probs per target class, so that many plots.
-More effort, but get a fuller picture. 
-
-evidently also a good tool. i guess. it doesn't render for me on bns laptop
-
-It only makes sense to set a threshold with multiple classes if there is a default class. If there is no class over the
-threshold and there is no default, then have no predition (in that case, 'no prediction' becomes a defacto default). 
 
 
 
