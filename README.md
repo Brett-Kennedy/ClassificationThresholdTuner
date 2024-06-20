@@ -143,21 +143,25 @@ recall (as well as other statistics) for each range of the predicted probabiliti
 are used and y_pred_proba is evenly distributed from 0.0 to 1.0, then the first range will cover predicted
 probabilities between 0.9 and 1.0; the next range will cover predicted probabilities between 0.8 and 0.9, and
 so on.
+
 For each range, this displays the precision (the number of positive records out of the total number of records
 in this range of predicted probabilities) and the recall (the number of positive records in this range out of
-the total number of postive examples).
+the total number of positive examples).
+
 The cumulative precision and cumulative recall for each range is also shown, giving insight into setting
-the threshold at the low end of each range.
+the threshold at the low end of each range. The cumulative values assume we start first with high probabilities,
+and then consider adding lower probabilities, accumulating more predictions for the positive class. 
+
 A plot of the cumulative precision and recall at each probability is also displayed.
 
-y_true: array.
-  True labels for each record
-y_pred: array
-  Predicted labels for each record
-target_classes: array
-  Set of labels. Specified to allow displaying the positive class by name.
-num_ranges:
-  The number of rows in the table displayed.
+y_true: array of strings
+    True labels for each record
+target_classes: array of strings
+    Set of labels. Specified to allow displaying the positive class by name.
+y_pred_proba: array of floats 
+    Predicted labels for each record
+num_ranges: int
+    The number of rows in the table displayed.
 
 return: None
 ```
