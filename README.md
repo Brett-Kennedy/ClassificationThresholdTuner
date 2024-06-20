@@ -208,9 +208,12 @@ return: None
 ```
 
 Example output with binary classification:
+
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/binary_2.png)
 
+
 Example output with multi-class classification:
+
 ![Line Graph](https://github.com/Brett-Kennedy/ClassificationThresholdTuner/blob/main/images/multi_1.png)
 
 
