@@ -10,6 +10,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+
 def is_notebook():
     """
     Determine if we are currently operating in a notebook, such as Jupyter. Returns True if so, False otherwise.
@@ -779,7 +780,7 @@ class ClassificationThresholdTuner:
             print(display_df)
 
     def tune_threshold(self, y_true, target_classes, y_pred_proba, metric, higher_is_better=True, default_class=None,
-                       max_iterations=5, **kwargs):
+                       plot_thresholds=True, max_iterations=5, **kwargs):
         """
         Find the ideal threshold(s) to optimize the specified metric.
 
@@ -797,17 +798,23 @@ class ClassificationThresholdTuner:
             Must be set for multiclass classification. Not used for binary classification.
         :param max_iterations: The number of iterations affects the time required to determine the best threshold(s) and
             the precision of the threshold(s) returned.
+        :param plot_thresholds: bool
+            If set True, a line plot matching the threshold with the specified metric is displayed for each iteration.
+            Used only for binary classification.
         :param kwargs: Any arguments related to the metric. For example, for f1_score, the average method may be
             specified.
         :return: For binary classification, returns a single threshold. For multi-class classification, returns a
             threshold for each class, with 0.0 set for the default class.
         """
-        def find_best_thresholds(min_range, max_range):
+        def find_best_thresholds(iteration_num, min_range, max_range, plot_thresholds):
             """
             # Called in binary classification case. Finds the best threshold between min_range and max_range
             (inclusive).
-            :param min_range: flaot
+            :param iteration_num: int
+            :param min_range: float
             :param max_range: float
+            :param plot_thresholds: bool
+                If set True, a line plot is presented with each iteration.
             :return:
                 1. bool indicating if all thresholds within the specified range lead to the same score.
                 2. [] if the bool is set True. Otherwise an array of threshold values sorted from the best to the worst.
@@ -832,6 +839,15 @@ class ClassificationThresholdTuner:
                 scores_arr.append(score)
             if len(set(scores_arr)) == 1:
                 return True, []
+
+            if plot_thresholds:
+                fig, ax = plt.subplots(figsize=(7, 1.5))
+                sns.lineplot(x=test_vals, y=scores_arr)
+                plt.title(f"Iteration: {iteration_num + 1} -- Score vs Threshold")
+                ax.set_xlabel("Threshold")
+                ax.set_ylabel("Score")
+                plt.ticklabel_format(style='plain', axis='y')
+                plt.show()
 
             if higher_is_better:
                 sorted_thresholds = pd.Series(test_vals)[pd.Series(scores_arr).sort_values().index[::-1].tolist()].values.tolist()
@@ -892,14 +908,24 @@ class ClassificationThresholdTuner:
 
             min_range = 0.0
             max_range = 1.0
-            for iter_idx in tqdm(range(max_iterations)):
-                are_equal, sorted_array = find_best_thresholds(min_range, max_range)
-                if are_equal:  # are_equal is True if all thresholds result in the same scores
-                    return min_range + ((max_range - min_range) / 2)
-                min_range = min(sorted_array[:2])
-                max_range = max(sorted_array[:2])
-                if min_range == max_range:
-                    return min_range
+            if plot_thresholds:
+                for iteration_idx in range(max_iterations):
+                    are_equal, sorted_array = find_best_thresholds(iteration_idx, min_range, max_range, plot_thresholds)
+                    if are_equal:  # are_equal is True if all thresholds result in the same scores
+                        return min_range + ((max_range - min_range) / 2)
+                    min_range = min(sorted_array[:2])
+                    max_range = max(sorted_array[:2])
+                    if min_range == max_range:
+                        return min_range
+            else:
+                for _ in tqdm(range(max_iterations)):
+                    are_equal, sorted_array = find_best_thresholds(None, min_range, max_range, plot_thresholds)
+                    if are_equal:  # are_equal is True if all thresholds result in the same scores
+                        return min_range + ((max_range - min_range) / 2)
+                    min_range = min(sorted_array[:2])
+                    max_range = max(sorted_array[:2])
+                    if min_range == max_range:
+                        return min_range
 
             return sorted_array[0]
         else:
