@@ -8,6 +8,8 @@ ClassificationThesholdTuner supports both binary and multi-class classification.
 
 Searching for an optimal threshold with binary classification problems is relatively straightforward, though ClassificationThesholdTuner does simplify the process. The use of visualizations also provides context. Optimizing the thresholds for multi-class classification is more complex. 
 
+For a more thorough description, see the article on Medium: https://medium.com/towards-data-science/achieve-better-classification-results-with-classificationthresholdtuner-39c5d454637e
+
 ## Background
 This assumes first, the use of classifiers that produce probabilities for each record and, second, that we wish to convert these into label predictions, such that for each record we have a prediction of a single class. 
 
