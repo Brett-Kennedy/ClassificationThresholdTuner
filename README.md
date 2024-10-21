@@ -1,4 +1,4 @@
-# ClassificationThesholdTuner
+# Classification Threshold Tuner
 
 ClassificationThesholdTuner is a tool to set the thresholds used for clasificiation problems and to visualize the implications of different thresholds. 
 
