@@ -1,6 +1,6 @@
 # Classification Threshold Tuner
 
-ClassificationThesholdTuner is a tool to set the thresholds used for clasificiation problems and to visualize the implications of different thresholds. 
+ClassificationThresholdTuner is a tool to set the thresholds used for clasificiation problems and to visualize the implications of different thresholds. 
 
 Where models produce probabilities for each class, depending on the distribution of probabilities and the metric we wish to optimize for, we may acheive better results using different thresholds. The tool automates selecting a threshold and helps you understand the choices related to the threshold(s) selected.
 
